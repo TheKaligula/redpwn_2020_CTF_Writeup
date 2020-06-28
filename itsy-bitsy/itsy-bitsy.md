@@ -57,8 +57,8 @@ What is evident is that through the input we can control how many bits the rando
 
 Hence to use this to solve this challenge we can use the following algorithm:
 1. Start with an input of `i=1, j=2`. This will generate a key by repeating a 2 bit number.
-2. Look at the 3rd bit of the ciphertext and derive the third bit of the plaintext
-3. Next increment i and j by 1 and repeat the process to recover the 4th bit of the plaintext
+2. Look at the 3rd bit of the ciphertext and derive the third bit of the plaintext.
+3. Next increment i and j by 1 and repeat the process to recover the 4th bit of the plaintext.
 4. Continue in this manner until all bits are recovered.
 
 The only bits that cannot be recovered this way is the first and second bit, but we know that these need to be 1 since the first letter of *flag* is *f* which has a binary representation of *1100110*

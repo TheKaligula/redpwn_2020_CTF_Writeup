@@ -95,4 +95,4 @@ _th3_53c0nd_15_th15
 h3r3'5_th3_f1r5t_h4lf
 ```
 
-Placing this in the flag format the flag comes out as `flag{h3r3'5_th3_f1r5t_h4lf_th3_53c0nd_15_th15}`
+Placing this in the flag format the flag comes out as `flag{h3r3'5_th3_f1r5t_h4lf_th3_53c0nd_15_th15}`.
