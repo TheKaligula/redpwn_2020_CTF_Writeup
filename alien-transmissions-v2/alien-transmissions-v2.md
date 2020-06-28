@@ -1,6 +1,6 @@
 # alien-transmissions-v2
 
-This challenge is a variation on a repeating-key XOR cipher. It was likely seen as a more difficult challenge given the lower number of solves compared to the others. What likely makes this challenge seem difficult is the that the plaintext is encrypted with two repeating keys each of differing lenghts. However this does not make the cryptanalysis any more difficult then a repeating key XOR with only one key and in fact adds no additional security.
+This challenge is a variation on a repeating-key XOR cipher. It was likely seen as a more difficult challenge given the lower number of solves compared to the other cryptography challenges. What likely makes this challenge seem difficult is the that the plaintext is encrypted with two repeating keys each of differing lenghths. However this does not make the cryptanalysis any more difficult then a repeating key XOR with only one key and in fact adds no additional security.
 
 The challenge statement reads as follows:
 
@@ -15,19 +15,19 @@ However, it seems like they used XOR encryption twice with two different keys! W
 Find these two keys for me; concatenate their ASCII encodings and wrap it in the flag format.
 ```
 
-From this we can derive that the alien alphabet contains 512 characters with character 481 representing a delimiter between words. At this point we can assume that the message is just numeric and will not translate to English. 
-We are also given the key lenghts of the two keys, 21 and 19 characters respectively, used in this cipher.
+From this we can derive that the alien alphabet contains 512 characters with character 481 representing a delimiter between words. At this point we can assume that the message is just numeric and will not translate to actual English. 
+We are also given the key lengths of the two keys, which are 21 and 19 characters respectively, used in this cipher.
 
-Before we attempt to solve this challenge lets first look at the methodolgy used to recover the key for a repeating-key XOR cipher with a key length on *N*. Under such a cipher the first letter of the plaintext is XOR'ed with the first letter of the key, the second letter of the plaintext with the second letter of the key and so on, until the *N+1* letter of the plaintext which gets XOR'ed with the first letter of the key again. Therefore we the *1st, (N+1)th, (2N+1)th ...* letter of the plaintext all get XOR'ed with the same letter of the key. Hence, given a ciphertext, we can take an extract of the *1st, (N+1)th, (2N+1)th ...* letters and perform a frequency analysis to recover the first letter of the key. We can then repeat this for the *2nd, (N+2)th, (2N+2)th ...* letter to recover the second letter of the key and so on until we have recover all N letters.
+Before we attempt to solve this challenge lets first look at the methodolgy used to recover the key for a repeating-key XOR cipher with a key length of *N*. Under such a cipher the first character of the plaintext is XOR'ed with the first character of the key, the second character of the plaintext with the second character of the key and so on, until the *N+1th* character of the plaintext which gets XOR'ed with the first character of the key again. Therefore we the *1st, (N+1)th, (2N+1)th ...* characters of the plaintext all get XOR'ed with the same character of the key. Hence, given a ciphertext, we can take an extract of the *1st, (N+1)th, (2N+1)th ...* characters and perform a frequency analysis to recover the first letter of the key. We can then repeat this for the *2nd, (N+2)th, (2N+2)th ...* characters to recover the second letter of the key and so on until we have recover all N characters.
 
 Now if we apply the same logic to this challenge then which characters in the plaintext would have been XOR with the same character in both keys? Given that the first key has a length of 21 and the second a length of 19, both keys will repeat at the lowest common multiple of 21 and 19 which is 399. That is, the first character of the plaintext gets XOR'ed with the first character of the key of length 21 (key 1) and the first character of the key of length 19 (key 2). The next character that gets XOR'ed by the same two character in key 1 and key 2 is character 400. This is equivalent to a repeating-key XOR cipher with a key length of 399.
 
 Therefore we will follow the following process to recover the two key:
 1. First we will recover the composite key of length 399 using the ciphertext provide.
-2. Second we treat this composite key a ciphertext a attempt to recover the key of length 19 using the methodology descibed above.
+2. Second we treat this composite key as a ciphertext and attempt to recover the key of length 19 using the methodology described above.
 3. Once we have this we can recover the key of length 21.
 
-To begin we load the *encrypted.txt* file and start by analysing the distibution of the characters of the subset of every slice of step 399 (i.e the length of the composite key). What becomes immediately evident is that for every slice there is one character that is a lot more frequent than all other. This is very likely the delimiter character which we know to be character 481 in the alien alphabet. Therefore we will loop through all slices of size 399 of ciphertext taking the most frequent character and XOR'ing it with 481 to get the composite key. The following Python code does this:
+To begin we load the *encrypted.txt* file and start by analysing the distibution of the characters of the subset of every slice of step 399 (i.e the length of the composite key). What becomes immediately evident is that for every slice there is one character that is a lot more frequent than all others. This is very likely the delimiter character which we know to be character 481 in the alien alphabet. Therefore we will loop through all slices of size 399 of ciphertext taking the most frequent character and XOR'ing it with 481 to get the composite key. The following Python code does this:
 
 ```python
 import pandas as pd 
@@ -43,13 +43,11 @@ for i in range(399):
 
 Now that we have the composite key we treat this as our new ciphertext and we attempt to recover the key of length 19. This is now a repeating-key XOR of length 19 and so we take slices of length 19, loop though all character from 0 to 255 XOR'ing the ciphertext, score the resultant plaintext relative to the ASCII letter frequency and pick the character that gave the lowest score as the character of the key.
 
-The method I use to score the plaintext is the *Squared Error* between the character frequencies of the plaintext and the ASCII character frequencies. I used a the ASCII character frequencies of the uppercase, lowercase and numbers. I replace the *space*  with _ since the flag format uses _ for spaces.
+The method I use to score the plaintext is the *Squared Error* between the character frequencies of the plaintext and the ASCII character frequencies. I used the ASCII character frequencies of the uppercase, lowercase and numbers. I replace the *space*  with _ since the flag format uses _ for spaces.
 
 The scoring function is as followings:
 
 ```python
-ascii_df = pd.read_csv('CTFAsciiFrequency.txt')
-
 def ScoreText(ciphertext, letter_frequency):
 
     # Calculate the frequency of the ciphertext
@@ -67,6 +65,8 @@ def ScoreText(ciphertext, letter_frequency):
 The code used to recover the key of length 19 is as follows:
 
 ```python
+ascii_df = pd.read_csv('CTFAsciiFrequency.txt')
+
 key_19 = [0 for c in range(19)]
 for i in range(19):
     key_char = composite_key[i::19]
