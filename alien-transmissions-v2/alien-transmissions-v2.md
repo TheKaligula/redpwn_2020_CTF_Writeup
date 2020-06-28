@@ -5,7 +5,8 @@ This challenge is a variation on a repeating-key XOR cipher. It was likely seen 
 The challenge statement reads as follows:
 
 ```
-The aliens are at it again! We've discovered that their communications are in base 512 and have transcribed them in base 10. However, it seems like they used XOR encryption twice with two different keys! We do have some information:
+The aliens are at it again! We've discovered that their communications are in base 512 and have transcribed them in base 10. 
+However, it seems like they used XOR encryption twice with two different keys! We do have some information:
 
 - This alien language consists of words delimitated by the character represented as 481
 - The two keys appear to be of length 21 and 19
@@ -26,7 +27,7 @@ Therefore we will follow the following process to recover the two key:
 2. Second we treat this composite key a ciphertext a attempt to recover the key of length 19 using the methodology descibed above.
 3. Once we have this we can recover the key of length 21.
 
-To begin we load the *encrypted.txt* file and start by analysing the distibution of the character of the subset of every slice of step 399 (i.e the length of the composite key). What becomes immediately evident is that for every slice there is one character that is a lot more frequent than all other. This is very likely the delimiter character which we know to be character 481 in the alien alphabet. Therefore we will loop through all slices of size 399 of ciphertext taking the most frequent character and XOR'ing it with 481 to get the composite key. The following Python code does this:
+To begin we load the *encrypted.txt* file and start by analysing the distibution of the characters of the subset of every slice of step 399 (i.e the length of the composite key). What becomes immediately evident is that for every slice there is one character that is a lot more frequent than all other. This is very likely the delimiter character which we know to be character 481 in the alien alphabet. Therefore we will loop through all slices of size 399 of ciphertext taking the most frequent character and XOR'ing it with 481 to get the composite key. The following Python code does this:
 
 ```python
 import pandas as pd 
@@ -42,7 +43,7 @@ for i in range(399):
 
 Now that we have the composite key we treat this as our new ciphertext and we attempt to recover the key of length 19. This is now a repeating-key XOR of length 19 and so we take slices of length 19, loop though all character from 0 to 255 XOR'ing the ciphertext, score the resultant plaintext relative to the ASCII letter frequency and pick the character that gave the lowest score as the character of the key.
 
-The method I use to score the plaintext is the *Squared Error* and I using a the character frequencies of the uppercase, lowercase and numbers. I replace the *space*  with _ since the flag format uses _ for spaces.
+The method I use to score the plaintext is the *Squared Error* between the character frequencies of the plaintext and the ASCII character frequencies. I used a the ASCII character frequencies of the uppercase, lowercase and numbers. I replace the *space*  with _ since the flag format uses _ for spaces.
 
 The scoring function is as followings:
 
@@ -94,4 +95,4 @@ _th3_53c0nd_15_th15
 h3r3'5_th3_f1r5t_h4lf
 ```
 
-Placing this in the flag format the flag becomes `flag{h3r3'5_th3_f1r5t_h4lf_th3_53c0nd_15_th15}`
+Placing this in the flag format the flag comes out as `flag{h3r3'5_th3_f1r5t_h4lf_th3_53c0nd_15_th15}`
